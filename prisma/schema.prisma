@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id         String         @id @default(cuid())
+  username   String         @unique
+  password   String
+  role       String         // ADMIN, DEAN, PRINCIPAL, HOD, FACULTY, TNP
+  department String?
+  announcements Announcement[]
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  category  String
+  createdAt DateTime @default(now())
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+model Query {
+  id          String   @id @default(cuid())
+  studentName String
+  rollNo      String
+  department  String
+  question    String
+  answer      String?
+  isAnswered  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  date        DateTime
+  location    String?
+  createdAt   DateTime @default(now())
+}
+
+model Staff {
+  id          String   @id @default(cuid())
+  name        String
+  designation String
+  department  String
+  email       String?
+  phone       String?
+  image       String?
+  createdAt   DateTime @default(now())
+}
