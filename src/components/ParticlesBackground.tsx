@@ -6,11 +6,14 @@ export default function ParticlesBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvasElement = canvasRef.current;
+    if (!canvasElement) return;
 
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    const context = canvasElement.getContext("2d");
+    if (!context) return;
+
+    const canvas: HTMLCanvasElement = canvasElement;
+    const ctx: CanvasRenderingContext2D = context;
 
     let animationFrameId: number;
     let particles: Particle[] = [];
@@ -19,7 +22,7 @@ export default function ParticlesBackground() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
-    
+
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
 
@@ -42,12 +45,16 @@ export default function ParticlesBackground() {
         this.x += this.speedX;
         this.y += this.speedY;
 
-        if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        if (this.x < 0 || this.x > canvas.width) {
+          this.speedX *= -1;
+        }
+
+        if (this.y < 0 || this.y > canvas.height) {
+          this.speedY *= -1;
+        }
       }
 
       draw() {
-        if (!ctx) return;
         ctx.fillStyle = "rgba(0, 240, 255, 0.4)";
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -57,7 +64,11 @@ export default function ParticlesBackground() {
 
     const init = () => {
       particles = [];
-      const numberOfParticles = Math.floor((canvas.width * canvas.height) / 15000);
+
+      const numberOfParticles = Math.floor(
+        (canvas.width * canvas.height) / 15000
+      );
+
       for (let i = 0; i < numberOfParticles; i++) {
         particles.push(new Particle());
       }
@@ -65,44 +76,88 @@ export default function ParticlesBackground() {
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Draw smooth gradient waves
-      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+
+      const gradient = ctx.createLinearGradient(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
       gradient.addColorStop(0, "rgba(157, 78, 221, 0.05)");
       gradient.addColorStop(1, "rgba(0, 240, 255, 0.05)");
+
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Soft glowing orbs
       const time = Date.now() * 0.0005;
-      const orbX = canvas.width / 2 + Math.cos(time) * 200;
-      const orbY = canvas.height / 2 + Math.sin(time * 0.8) * 150;
-      
-      const orbGradient = ctx.createRadialGradient(orbX, orbY, 0, orbX, orbY, 300);
-      orbGradient.addColorStop(0, "rgba(157, 78, 221, 0.08)");
+
+      const orbX =
+        canvas.width / 2 + Math.cos(time) * 200;
+
+      const orbY =
+        canvas.height / 2 + Math.sin(time * 0.8) * 150;
+
+      const orbGradient = ctx.createRadialGradient(
+        orbX,
+        orbY,
+        0,
+        orbX,
+        orbY,
+        300
+      );
+
+      orbGradient.addColorStop(
+        0,
+        "rgba(157, 78, 221, 0.08)"
+      );
+
       orbGradient.addColorStop(1, "transparent");
+
       ctx.fillStyle = orbGradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
 
       for (let i = 0; i < particles.length; i++) {
         particles[i].update();
         particles[i].draw();
 
-        for (let j = i; j < particles.length; j++) {
+        for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
           const dy = particles[i].y - particles[j].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          const distance = Math.sqrt(
+            dx * dx + dy * dy
+          );
 
           if (distance < 120) {
             ctx.beginPath();
-            ctx.strokeStyle = `rgba(0, 240, 255, ${0.15 - distance / 800})`;
+
+            ctx.strokeStyle = `rgba(0, 240, 255, ${
+              0.15 - distance / 800
+            })`;
+
             ctx.lineWidth = 0.5;
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
+
+            ctx.moveTo(
+              particles[i].x,
+              particles[i].y
+            );
+
+            ctx.lineTo(
+              particles[j].x,
+              particles[j].y
+            );
+
             ctx.stroke();
           }
         }
       }
+
       animationFrameId = requestAnimationFrame(animate);
     };
 
@@ -110,7 +165,11 @@ export default function ParticlesBackground() {
     animate();
 
     return () => {
-      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener(
+        "resize",
+        resizeCanvas
+      );
+
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
