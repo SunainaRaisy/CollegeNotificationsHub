@@ -14,25 +14,31 @@ export default async function AnnouncementsPage({
     params.category || "ALL"
   ).toUpperCase();
 
-  const announcements = await prisma.announcement.findMany({
-    where:
-      selectedCategory === "ALL"
-        ? undefined
-        : {
-            category: selectedCategory,
-          },
+  let announcements: any[] = [];
 
-    orderBy: {
-      createdAt: "desc",
-    },
+  try {
+    announcements = await prisma.announcement.findMany({
+      where:
+        selectedCategory === "ALL"
+          ? undefined
+          : {
+              category: selectedCategory,
+            },
 
-    include: {
-      author: true,
-    },
-  });
+      orderBy: {
+        createdAt: "desc",
+      },
+
+      include: {
+        author: true,
+      },
+    });
+  } catch {
+    announcements = [];
+  }
 
   let formattedAnnouncements = announcements.map(
-    (announcement) => ({
+    (announcement: any) => ({
       id: announcement.id,
       title: announcement.title,
       content: announcement.content,
@@ -228,7 +234,7 @@ export default async function AnnouncementsPage({
             <div className="announcement-list">
 
               {formattedAnnouncements.map(
-                (announcement) => {
+                (announcement: any) => {
 
                   const category =
                     announcement.category

@@ -4,11 +4,17 @@ import { Bell, Zap, Calendar, MessageSquare, ShieldCheck, ArrowRight } from 'luc
 import Link from 'next/link';
 
 export default async function Home() {
-  const recentAnnouncements = await prisma.announcement.findMany({
-    take: 6,
-    orderBy: { createdAt: 'desc' },
-    include: { author: true },
-  });
+  let recentAnnouncements: any[] = [];
+
+  try {
+    recentAnnouncements = await prisma.announcement.findMany({
+      take: 6,
+      orderBy: { createdAt: 'desc' },
+      include: { author: true },
+    });
+  } catch {
+    recentAnnouncements = [];
+  }
 
   // Dummy announcements if DB is empty
   const announcements = recentAnnouncements.length > 0 ? recentAnnouncements : [
@@ -151,7 +157,7 @@ export default async function Home() {
         <p className={styles.sectionSubtitle}>Stay in the loop with the latest</p>
         
         <div className={styles.announcementsGrid}>
-          {announcements.map((announcement) => {
+          {announcements.map((announcement: any) => {
             // Dynamic styling based on category
             const isUrgent = announcement.category === 'URGENT';
             const isEvent = announcement.category === 'HACKATHON' || announcement.category === 'CLUB_EVENT';

@@ -3,10 +3,16 @@ import styles from './page.module.css';
 import ContactForm from './ContactForm';
 
 export default async function ContactPage() {
-  const answeredQueries = await prisma.query.findMany({
-    where: { isAnswered: true },
-    orderBy: { createdAt: 'desc' },
-  });
+  let answeredQueries: Awaited<ReturnType<typeof prisma.query.findMany>> = [];
+
+  try {
+    answeredQueries = await prisma.query.findMany({
+      where: { isAnswered: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  } catch {
+    answeredQueries = [];
+  }
 
   return (
     <div className={styles.container}>
@@ -25,7 +31,7 @@ export default async function ContactPage() {
             {answeredQueries.length === 0 ? (
               <p className={styles.emptyState}>No queries have been answered yet.</p>
             ) : (
-              answeredQueries.map((query) => (
+              answeredQueries.map((query: any) => (
                 <div key={query.id} className={styles.queryCard}>
                   <div className={styles.queryHeader}>
                     <span className={styles.studentInfo}>{query.studentName} ({query.department})</span>
